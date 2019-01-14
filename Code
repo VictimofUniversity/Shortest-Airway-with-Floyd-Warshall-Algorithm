@@ -1,0 +1,246 @@
+import folium
+import pandas as pd
+from PyQt5 import QtGui
+import sys
+
+from PyQt5.QtWidgets import QWidget,QApplication,QInputDialog
+
+
+def create_map(name,lat_list,long_list):
+   int_lat = [float(i) for i in lat_list ]
+   int_long = [float(i) for i in long_list]
+
+   # Make a data frame with dots to show on the map
+   data = pd.DataFrame({
+       'lat': int_long ,
+       'lon': int_lat,
+       'name': name
+   })
+   data
+   # Make an empty map
+   m = folium.Map(location=[20, 0], tiles="Mapbox Bright", zoom_start=2)
+
+   # I can add marker one by one on the map
+   for i in range(0, len(data)):
+       folium.Marker([data.iloc[i]['lon'], data.iloc[i]['lat']], popup=data.iloc[i]['name']).add_to(m)
+
+   # Save it as html
+   m.save('Plugins_3.html')
+
+f = open("cop2.txt","r")
+
+lines = list(f)
+data = []
+for i in lines:
+    data.append(i.split(","))
+
+
+lati = list()
+longi = list()
+airport_name = list() # data[i][6] latitude, data[i][7] longtitude , data[i][1] airport's name
+coor = dict()
+for i in range(len(data)):
+    #print("Airport:",data[i][1],"Latitude:",data[i][6],"Longitude",data[i][7])
+    lati.append(data[i][6])
+    longi.append(data[i][7])
+    airport_name.append(data[i][1])
+    coor[data[i][1]]=[data[i][7],data[i][6]]
+print(coor)
+
+
+
+
+class Notepad(QWidget):
+    def __init__(self):
+
+        super().__init__()
+
+        self.nereden, okPressed = QInputDialog.getItem(self, "Seçiniz", "Nereden:", airport_name)
+        airport_name.remove(self.nereden)
+
+        self.nereye, okPressed = QInputDialog.getItem(self, "Seçiniz", "Nereye:", airport_name)
+        airport_name.remove(self.nereye)
+
+        self.setWindowTitle("Mail Cryptor 1.0")
+        self.setWindowIcon(QtGui.QIcon("hacker.png"))
+
+        burdan=coor[self.nereden]
+        buraya=coor[self.nereye]
+
+        print(burdan,"\n",buraya)  # burdan[0]Lati,  burdan[1] longi
+
+
+
+        print(coor)
+
+
+        import folium
+        from folium import plugins
+
+        m = folium.Map(
+            location=[0, 0],
+            zoom_start=5
+        )
+
+        # Lon, Lat order.
+        lines = [{'coordinates': [[32.995098114, 40.128101348899996], [29.3092002869, 40.898601532], ],
+                  'dates': ['2017-06-02T00:00:00', '2017-06-02T00:10:00'], 'color': 'green'},
+                 {
+                     'coordinates': [
+                         [29.3092002869, 40.898601532],
+                         [17.918600082397,59.651901245117],
+                     ],
+                     'dates': [
+                         '2017-06-02T00:10:00',
+                         '2017-06-02T00:20:00'
+                     ],
+                     'color': 'green'
+                 },
+                 {
+                     'coordinates': [
+                         [17.918600082397,59.651901245117],
+                         [-20.137500762939453, 63.55609893798828],
+                     ],
+                     'dates': [
+                         '2017-06-02T00:10:00',
+                         '2017-06-02T00:20:00'
+                     ],
+                     'color': 'green'
+                 },
+                 {
+                     'coordinates': [
+                         [-20.137500762939453,63.55609893798828],
+                         [-73.77890015, 40.63980103],
+                     ],
+                     'dates': [
+                         '2017-06-02T00:30:00',
+                         '2017-06-02T00:40:00'
+                     ],
+                     'color': 'green',
+                 },
+                 ]
+
+        features = [
+            {
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'LineString',
+                    'coordinates': line['coordinates'],
+                },
+                'properties': {
+                    'times': line['dates'],
+                    'style': {
+                        'color': line['color'],
+                        'weight': line['weight'] if 'weight' in line else 5
+                    }
+                }
+            }
+            for line in lines
+        ]
+        plugins.TimestampedGeoJson({
+            'type': 'FeatureCollection',
+            'features': features,
+        }, period='PT1M', add_last_point=True).add_to(m)
+
+        m.save('ata_reis.html')
+        lines1 = [{'coordinates': [[ -73.77890015,40.63980103], [-35.376111, -5.768056], ],
+                  'dates': ['2017-06-02T00:00:00', '2017-06-02T00:10:00'], 'color': 'red'},
+                 {
+                     'coordinates': [
+                         [-35.376111, -5.768056],
+                         [-10.362299919128418, 6.233789920806885],
+                     ],
+                     'dates': [
+                         '2017-06-02T00:10:00',
+                         '2017-06-02T00:20:00'
+                     ],
+                     'color': 'red'
+                 },
+
+                 {
+                     'coordinates': [
+                         [-10.362299919128418, 6.233789920806885],
+                         [29.3092002869, 40.898601532],
+                     ],
+                     'dates': [
+                         '2017-06-02T00:30:00',
+                         '2017-06-02T00:40:00'
+                     ],
+                     'color': 'red',
+                 },
+                 ]
+
+        features = [
+            {
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'LineString',
+                    'coordinates': line['coordinates'],
+                },
+                'properties': {
+                    'times': line['dates'],
+                    'style': {
+                        'color': line['color'],
+                        'weight': line['weight'] if 'weight' in line else 5
+                    }
+                }
+            }
+            for line in lines1
+        ]
+
+        plugins.TimestampedGeoJson({
+            'type': 'FeatureCollection',
+            'features': features,
+        }, period='PT1M', add_last_point=True).add_to(m)
+
+        m.save('ata_reis.html')
+
+        lines2 = [{'coordinates': [[-73.77890015, 40.63980103], [29.3092002869,40.898601532], ],
+                   'dates': ['2017-06-02T00:00:00', '2017-06-02T00:10:00'], 'color': 'red'},
+                  ]
+
+        features = [
+            {
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'LineString',
+                    'coordinates': line['coordinates'],
+                },
+                'properties': {
+                    'times': line['dates'],
+                    'style': {
+                        'color': line['color'],
+                        'weight': line['weight'] if 'weight' in line else 5
+                    }
+                }
+            }
+            for line in lines2
+        ]
+
+        plugins.TimestampedGeoJson({
+            'type': 'FeatureCollection',
+            'features': features,
+        }, period='PT1M', add_last_point=True).add_to(m)
+
+        m.save('ata_reis.html')
+
+
+
+
+
+
+
+
+
+
+
+
+
+app = QApplication(sys.argv)
+
+menu = Notepad()
+
+
+sys.exit(app.exec_())
+
+
